@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Animations & LocalStorage Demo</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --dark-color: #1a2639;
+            --light-color: #f0f4ef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            padding: 20px;
+            transition: background-color 0.5s ease;
+        }
+        
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: fadeInDown 1s ease forwards;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-button {
+            padding: 0.8rem 1.5rem;
+            margin: 0 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            transform: scale(1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .nav-button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .card:nth-child(1) { animation: fadeInUp 0.5s ease 0.2s forwards; }
+        .card:nth-child(2) { animation: fadeInUp 0.5s ease 0.4s forwards; }
+        .card:nth-child(3) { animation: fadeInUp 0.5s ease 0.6s forwards; }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Animation Gallery */
+        .animation-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .animation-box {
+            height: 150px;
+            background: var(--primary-color);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* Different Animation Effects */
+        .bounce { animation: bounce 2s infinite; }
+        .spin { animation: spin 3s linear infinite; }
+        .pulse { animation: pulse 2s ease infinite; }
+        .shake { animation: shake 0.5s ease infinite; }
+        .flip { animation: flip 2s ease infinite; }
+        
+        /* Theme Switcher */
+        .theme-switcher {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        
+        .theme-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-btn:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+        
+        /* Form Elements */
+        .preferences-form {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid #ddd;
+        }
+        
+        /* Keyframe Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        @keyframes flip {
+            0% { transform: perspective(400px) rotateY(0); }
+            50% { transform: perspective(400px) rotateY(180deg); }
+            100% { transform: perspective(400px) rotateY(360deg); }
+        }
+        
+        /* Dark Theme */
+        body.dark-theme {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+        }
+        
+        body.dark-theme .card,
+        body.dark-theme .preferences-form {
+            background: #2c3e50;
+            color: var(--light-color);
+        }
+        
+        body.dark-theme input,
+        body.dark-theme select {
+            background: #34495e;
+            border-color: #2c3e50;
+            color: white;
+        }
+        
+        /* Progress Bar Animation */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 10px;
+            width: 0;
+            transition: width 1s ease;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+        }
+        
+        /* Particle Animation */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: var(--accent-color);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <header>
+        <h1>Interactive Animations & LocalStorage</h1>
+        <p>Explore CSS3 transitions, animations, and JavaScript functionality</p>
+    </header>
+    
+    <nav>
+        <button class="nav-button" id="animateBtn">Trigger Animations</button>
+        <button class="nav-button" id="themeBtn">Toggle Theme</button>
+        <button class="nav-button" id="savePrefBtn">Save Preferences</button>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <h2>CSS3 Transitions</h2>
+            <p>CSS transitions allow you to change property values smoothly over a given duration. Hover over the navigation buttons to see transition effects.</p>
+            <p>Transitions are perfect for simple state changes like hover effects, focus states, or active states.</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="transitionProgress">0%</div>
+            </div>
+            <button class="nav-button" id="transitionDemo">Demo Transition</button>
+        </div>
+        
+        <div class="card">
+            <h2>CSS3 Animations</h2>
+            <p>CSS animations make it possible to animate transitions from one CSS style configuration to another.</p>
+            <p>Animations consist of two components: a style describing the CSS animation and a set of keyframes that indicate the start and end states of the animation's style.</p>
+            <div class="animation-gallery">
+                <div class="animation-box bounce">Bounce</div>
+                <div class="animation-box spin">Spin</div>
+                <div class="animation-box pulse">Pulse</div>
+                <div class="animation-box shake">Shake</div>
+                <div class="animation-box flip">Flip</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>LocalStorage API</h2>
+            <p>The localStorage API allows you to store data persistently in a user's browser.</p>
+            <p>Data stored in localStorage has no expiration time and remains until explicitly deleted.</p>
+            <div id="storageDemo">
+                <p>Current Theme: <span id="currentTheme">light</span></p>
+                <p>Last Animation Trigger: <span id="lastAnimation">Never</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="preferences-form">
+        <h2>User Preferences</h2>
+        <form id="preferencesForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label for="favColor">Favorite Color</label>
+                <select id="favColor">
+                    <option value="#4a6fa5">Blue</option>
+                    <option value="#4caf50">Green</option>
+                    <option value="#f44336">Red</option>
+                    <option value="#ff9800">Orange</option>
+                    <option value="#9c27b0">Purple</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="animationSpeed">Animation Speed</label>
+                <input type="range" id="animationSpeed" min="0.5" max="3" step="0.1" value="1">
+                <span id="speedValue">1x</span>
+            </div>
+            
+            <button type="submit" class="submit-btn">Save Preferences</button>
+        </form>
+    </div>
+    
+    <div class="theme-switcher">
+        <button class="theme-btn" id="quickThemeBtn">☀️</button>
+    </div>
+    
+    <footer>
+        <p>Created for CSS3 & JavaScript Demonstration</p>
+    </footer>
+    
+    <script>
+        // DOM Elements
+        const animateBtn = document.getElementById('animateBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        const quickThemeBtn = document.getElementById('quickThemeBtn');
+        const savePrefBtn = document.getElementById('savePrefBtn');
+        const transitionDemo = document.getElementById('transitionDemo');
+        const transitionProgress = document.getElementById('transitionProgress');
+        const preferencesForm = document.getElementById('preferencesForm');
+        const currentTheme = document.getElementById('currentTheme');
+        const lastAnimation = document.getElementById('lastAnimation');
+        const animationSpeed = document.getElementById('animationSpeed');
+        const speedValue = document.getElementById('speedValue');
+        const particlesContainer = document.getElementById('particles');
+        
+        // Check for saved preferences on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load theme preference
+            const savedTheme = localStorage.getItem('themePreference');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                currentTheme.textContent = 'dark';
+                quickThemeBtn.textContent = '🌙';
+            }
+            
+            // Load last animation time
+            const lastAnimTime = localStorage.getItem('lastAnimationTime');
+            if (lastAnimTime) {
+                lastAnimation.textContent = new Date(parseInt(lastAnimTime)).toLocaleString();
+            }
+            
+            // Load user preferences
+            const userPrefs = JSON.parse(localStorage.getItem('userPreferences')) || {};
+            if (userPrefs.username) {
+                document.getElementById('username').value = userPrefs.username;
+            }
+            if (userPrefs.favColor) {
+                document.getElementById('favColor').value = userPrefs.favColor;
+                updateThemeColors(userPrefs.favColor);
+            }
+            if (userPrefs.animationSpeed) {
+                animationSpeed.value = userPrefs.animationSpeed;
+                speedValue.textContent = `${userPrefs.animationSpeed}x`;
+            }
+            
+            // Create particles
+            createParticles();
+        });
+        
+        // Toggle theme
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            
+            // Save preference
+            localStorage.setItem('themePreference', isDark ? 'dark' : 'light');
+            currentTheme.textContent = isDark ? 'dark' : 'light';
+            quickThemeBtn.textContent = isDark ? '🌙' : '☀️';
+        }
+        
+        themeBtn.addEventListener('click', toggleTheme);
+        quickThemeBtn.addEventListener('click', toggleTheme);
+        
+        // Trigger animations
+        animateBtn.addEventListener('click', function() {
+            // Record animation time
+            const now = new Date().getTime();
+            localStorage.setItem('lastAnimationTime', now.toString());
+            lastAnimation.textContent = new Date(now).toLocaleString();
+            
+            // Add animation class to all cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.style.animation = 'none';
+                void card.offsetWidth; // Trigger reflow
+                card.style.animation = 'shake 0.5s ease';
+            });
+            
+            // Animate the gallery items with different effects
+            const galleryItems = document.querySelectorAll('.animation-box');
+            galleryItems.forEach(item => {
+                item.style.animation = 'none';
+                void item.offsetWidth; // Trigger reflow
+                
+                // Get the animation class from the text content
+                const animClass = item.textContent.toLowerCase();
+                item.style.animation = `${animClass} ${2 / parseFloat(animationSpeed.value)}s infinite`;
+            });
+            
+            // Create a confetti effect
+            createConfetti();
+        });
+        
+        // Transition demo
+        transitionDemo.addEventListener('click', function() {
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        transitionProgress.style.width = '0';
+                        transitionProgress.textContent = '0%';
+                    }, 1000);
+                } else {
+                    width++;
+                    transitionProgress.style.width = `${width}%`;
+                    transitionProgress.textContent = `${width}%`;
+                }
+            }, 20);
+        });
+        
+        // Save preferences
+        preferencesForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userPreferences = {
+                username: document.getElementById('username').value,
+                favColor: document.getElementById('favColor').value,
+                animationSpeed: animationSpeed.value
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
+            
+            // Update theme colors if favorite color changed
+            updateThemeColors(userPreferences.favColor);
+            
+            // Show confirmation animation
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.textContent = 'Preferences Saved!';
+            submitBtn.style.backgroundColor = '#4caf50';
+            
+            setTimeout(() => {
+                submitBtn.textContent = 'Save Preferences';
+                submitBtn.style.backgroundColor = 'var(--primary-color)';
+            }, 2000);
+        });
+        
+        // Animation speed control
+        animationSpeed.addEventListener('input', function() {
+            speedValue.textContent = `${this.value}x`;
+            
+            // Update animations in real-time
+            const galleryItems = document.querySelectorAll('.animation-box');
+            galleryItems.forEach(item => {
+                const animClass = item.textContent.toLowerCase();
+                item.style.animation = `${animClass} ${2 / parseFloat(this.value)}s infinite`;
+            });
+        });
+        
+        // Update CSS variables based on favorite color
+        function updateThemeColors(color) {
+            document.documentElement.style.setProperty('--primary-color', color);
+            
+            // Create a slightly darker version for secondary color
+            const darkerColor = shadeColor(color, -20);
+            document.documentElement.style.setProperty('--secondary-color', darkerColor);
+            
+            // Create a lighter accent color
+            const lighterColor = shadeColor(color, 40);
+            document.documentElement.style.setProperty('--accent-color', lighterColor);
+        }
+        
+        // Helper function to shade colors
+        function shadeColor(color, percent) {
+            let R = parseInt(color.substring(1,3), 16);
+            let G = parseInt(color.substring(3,5), 16);
+            let B = parseInt(color.substring(5,7), 16);
+
+            R = parseInt(R * (100 + percent) / 100);
+            G = parseInt(G * (100 + percent) / 100);
+            B = parseInt(B * (100 + percent) / 100);
+
+            R = (R<255)?R:255;  
+            G = (G<255)?G:255;  
+            B = (B<255)?B:255;  
+
+            const RR = (R.toString(16).length==1)?"0"+R.toString(16):R.toString(16);
+            const GG = (G.toString(16).length==1)?"0"+G.toString(16):G.toString(16);
+            const BB = (B.toString(16).length==1)?"0"+B.toString(16):B.toString(16);
+
+            return "#"+RR+GG+BB;
+        }
+        
+        // Create particles
+        function createParticles() {
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 5 + 2;
+                const posX = Math.random() * window.innerWidth;
+                const posY = Math.random() * window.innerHeight;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 10 + 5;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}px`;
+                particle.style.top = `${posY}px`;
+                particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Add floating animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes float {
+                    0% { transform: translateY(0) translateX(0); opacity: 0; }
+                    10% { opacity: 0.6; }
+                    90% { opacity: 0.6; }
+                    100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Create confetti effect
+        function createConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.style.position = 'fixed';
+            confettiContainer.style.top = '0';
+            confettiContainer.style.left = '0';
+            confettiContainer.style.width = '100%';
+            confettiContainer.style.height = '100%';
+            confettiContainer.style.pointerEvents = 'none';
+            confettiContainer.style.zIndex = '1000';
+            document.body.appendChild(confettiContainer);
+            
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.borderRadius = '50%';
+                confetti.style.transform = 'translateY(-100vh)';
+                
+                const animationDuration = Math.random() * 3 + 2;
+                confetti.style.animation = `confetti-fall ${animationDuration}s linear forwards`;
+                
+                confettiContainer.appendChild(confetti);
+            }
+            
+            // Add confetti animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes confetti-fall {
+                    to {
+                        transform: translateY(100vh) rotate(720deg);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Remove confetti after animation
+            setTimeout(() => {
+                confettiContainer.remove();
+                style.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
